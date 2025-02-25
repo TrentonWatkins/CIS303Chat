@@ -3,14 +3,15 @@ import os
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from cryptography.fernet import Fernet
 
 
 def keyGen():
-    privKey = Fernet.generate_key()
-    with open("private.pem", "wb") as priv_file:
-        priv_file.write(privKey)
-        
+    key = os.urandom(32)
+    privKey =base64.b64encode(key).decode()
+    filename = 'private.txt'
+    with open(filename, "w") as file:
+        file.write(privKey)
+
 
 publicKey = "securepassword1"
 
@@ -25,25 +26,27 @@ def xorDecrypt(encryptedMesg):
     return decrypted_bytes.decode(errors='ignore')
 
 def encryptMesg(message):
-    key = load_private_key()
+    key = load_key()
     cipher = AES.new(key, AES.MODE_CBC)
-    cypText = cipher.encrypt(pad(message.encoder(),AES.block_size))
-    return base64.b64encode(cipher.iv + cypText).decode()
+    cypText = cipher.encrypt(pad(message.encode(),AES.block_size))
+    sendMESG = base64.b64encode(cipher.iv + cypText).decode()
+    with open("Mesg.txt", "w") as file:
+        file.write(sendMESG)
+    return sendMESG
 
 def decryptMesg(encryptedMesg):
-    key = load_private_key()
+    key = load_key()
     encryptedData = base64.b64decode(encryptedMesg)
-    iv = encryptedData[:16]
-    cyptext = encryptedData[:16]
+    iv = encryptedData[:16]  # Extract IV
+    cyptext = encryptedData[16:]  # Extract only the ciphertext
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    return unpad(cipher.decrypt(cyptext),AES.block_size).decode()
+    return unpad(cipher.decrypt(cyptext), AES.block_size).decode()
 
 
 
-def load_private_key():
-    with open("private.pem", "rb") as priv_file:
-        private_key = RSA.import_key(priv_file.read())
-    return private_key
+def load_key(filename="private.txt"):
+    with open(filename, "r") as file:
+        key = file.read()  # Read Base64-encoded key
+    return base64.b64decode(key)
 
-
-
+# CopyRight@Watkins2025
