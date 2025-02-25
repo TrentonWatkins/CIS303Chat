@@ -1,4 +1,4 @@
-# Research Topics Course Project
+# CIS Information Security Project
 - Group Project for VMI CIS Information Security class
 - Proposed Idea:
 A Secure chat program using socket layer programming for communication, The Encryption technique is simple Xor cipher with public key and a base64 encryption with a private key for a more secure and stronger encryption layer
